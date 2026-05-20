@@ -12,6 +12,11 @@
 //   - Adding a new platform = adding one line of data
 //   - Later we can load this data from a JSON file instead
 // ------------------------------------------------------------
+const HIGHEST_PLATFORM_INDEX = 3;
+
+let bgImg, sushiImg, onigiriImg;
+let playerImg; // will point to sushiImg or onigiriImg
+
 let platforms = [
   // { x, y, w, h }
   { x: 0,   y: 410, w: 800, h: 40 }, // ground (full width floor)
@@ -63,11 +68,19 @@ const PLATFORM_COLOR = [255, 160, 50]; // warm orange
 // Runs once at the very start of the sketch.
 // Sets up the canvas and positions the player on the ground.
 // ============================================================
+function preload() {
+  bgImg     = loadImage("assets/images/background.png");
+  sushiImg  = loadImage("assets/images/Sushi1.png");
+  onigiriImg = loadImage("assets/images/Onigiri1.png");
+}
+
 function setup() {
   createCanvas(800, 450);
 
   // Place player on top of the ground platform (index 0 in the array)
   player.y = platforms[0].y - player.r;
+  playerImg = sushiImg;
+
 }
 
 // ============================================================
@@ -77,17 +90,13 @@ function setup() {
 // apply physics, resolve collisions, and draw everything.
 // ============================================================
 function draw() {
-  background(10);
-
+  image(bgImg, 0, 0, width, height); // background first
   handleInput();
   applyPhysics();
   resolvePlatformCollisions();
-
-  drawPlatforms();
-  drawPlayer();
-  drawHUD();
-
-  blobT += 0.015; // advance blob wobble animation each frame
+  drawPlatforms();   // platforms on top of background
+  drawPlayer();      // player on top of platforms
+  drawHUD();         // HUD always last
 }
 
 // ------------------------------------------------------------
@@ -203,9 +212,16 @@ function resolvePlatformCollisions() {
       playerBottom <= platTop + 20;
 
     if (overlapsHorizontally && landingOnTop) {
-      player.y = platTop - player.r; // snap to platform surface
-      player.vy = 0;                 // stop falling
-      player.onGround = true;        // allow jumping again
+      player.y = platTop - player.r;
+      player.vy = 0;
+      player.onGround = true;
+
+      // Swap character image based on which platform was landed on
+      if (i === HIGHEST_PLATFORM_INDEX) {
+        playerImg = onigiriImg;
+      } else {
+        playerImg = sushiImg;
+      }
     }
   }
 }
@@ -219,11 +235,19 @@ function resolvePlatformCollisions() {
 function drawPlatforms() {
   fill(PLATFORM_COLOR[0], PLATFORM_COLOR[1], PLATFORM_COLOR[2]);
   noStroke();
-
   for (let i = 0; i < platforms.length; i++) {
     let p = platforms[i];
-    rect(p.x, p.y, p.w, p.h, 6); // rounded corners
+    rect(p.x, p.y, p.w, p.h, 6);
   }
+
+  // Glow effect on the highest platform
+  let hp = platforms[HIGHEST_PLATFORM_INDEX];
+  drawingContext.shadowBlur = 20;
+  drawingContext.shadowColor = "rgba(255, 220, 50, 0.9)";
+  fill(PLATFORM_COLOR[0], PLATFORM_COLOR[1], PLATFORM_COLOR[2]);
+  noStroke();
+  rect(hp.x, hp.y, hp.w, hp.h, 6);
+  drawingContext.shadowBlur = 0; // reset so glow doesn't bleed onto other things
 }
 
 // ------------------------------------------------------------
@@ -234,34 +258,9 @@ function drawPlatforms() {
 // styles set here don't affect other drawing functions.
 // ------------------------------------------------------------
 function drawPlayer() {
-  push(); // save current drawing settings
-
-  fill(0, 200, 180); // teal
-  noStroke();
-
-  beginShape();
-  let numPoints = 48; // more points = smoother shape
-  for (let i = 0; i < numPoints; i++) {
-    let angle = (TWO_PI / numPoints) * i;
-
-    // noise() returns a smooth random value between 0 and 1.
-    // We use it to push each vertex in or out slightly.
-    let noiseVal = noise(cos(angle) * 0.8 + blobT, sin(angle) * 0.8 + blobT);
-
-    // map() converts noise (0–1) to a radius offset (-7 to +7 pixels)
-    let r = player.r + map(noiseVal, 0, 1, -7, 7);
-
-    // Convert polar coordinates (angle, radius) to x/y
-    vertex(player.x + cos(angle) * r, player.y + sin(angle) * r);
-  }
-  endShape(CLOSE);
-
-  // Draw two simple eyes
-  fill(10);
-  ellipse(player.x - 7, player.y - 5, 7, 7);
-  ellipse(player.x + 7, player.y - 5, 7, 7);
-
-  pop(); // restore drawing settings
+  let size = player.r * 2.5;
+  imageMode(CENTER);
+  image(playerImg, player.x, player.y, size, size);
 }
 
 // ------------------------------------------------------------
