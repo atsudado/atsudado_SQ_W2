@@ -22,10 +22,10 @@ let platforms = [
   { x: 0,   y: 410, w: 800, h: 40 }, // ground (full width floor)
   { x: 80,  y: 310, w: 120, h: 16 }, // left low platform
   { x: 280, y: 240, w: 140, h: 16 }, // centre platform
-  { x: 500, y: 170, w: 120, h: 16 }, // right high platform
-  { x: 160, y: 150, w: 100, h: 16 }, // left high platform
+  { x: 650, y: 190, w: 120, h: 16 }, // right high platform
+  { x: 450, y: 170, w: 100, h: 16 }, // left high platform
   { x: 360, y: 320, w: 110, h: 16 }, // centre low platform
-  { x: 620, y: 290, w: 130, h: 16 }, // far right platform
+  { x: 500, y: 290, w: 130, h: 16 }, // far right platform
 ];
 
 // ------------------------------------------------------------
@@ -90,7 +90,8 @@ function setup() {
 // apply physics, resolve collisions, and draw everything.
 // ============================================================
 function draw() {
-  image(bgImg, 0, 0, width, height); // background first
+  background(0);                      // ← clears canvas
+  image(bgImg, 0, 0, bgImg.width * 2, bgImg.height * 2);
   handleInput();
   applyPhysics();
   resolvePlatformCollisions();
@@ -217,10 +218,12 @@ function resolvePlatformCollisions() {
       player.onGround = true;
 
       // Swap character image based on which platform was landed on
-      if (i === HIGHEST_PLATFORM_INDEX) {
-        playerImg = onigiriImg;
-      } else {
-        playerImg = sushiImg;
+      if (i === HIGHEST_PLATFORM_INDEX && !player.wasOnMagic) {
+        playerImg = (playerImg === sushiImg) ? onigiriImg : sushiImg;
+        player.wasOnMagic = true;
+      }
+      if (i !== HIGHEST_PLATFORM_INDEX) {
+        player.wasOnMagic = false;
       }
     }
   }
@@ -233,6 +236,7 @@ function resolvePlatformCollisions() {
 // of objects — enemies, coins, tiles, etc.
 // ------------------------------------------------------------
 function drawPlatforms() {
+  
   fill(PLATFORM_COLOR[0], PLATFORM_COLOR[1], PLATFORM_COLOR[2]);
   noStroke();
   for (let i = 0; i < platforms.length; i++) {
@@ -243,11 +247,11 @@ function drawPlatforms() {
   // Glow effect on the highest platform
   let hp = platforms[HIGHEST_PLATFORM_INDEX];
   drawingContext.shadowBlur = 20;
-  drawingContext.shadowColor = "rgba(255, 220, 50, 0.9)";
-  fill(PLATFORM_COLOR[0], PLATFORM_COLOR[1], PLATFORM_COLOR[2]);
+  drawingContext.shadowColor = "rgba(255, 50, 50, 0.9)";
+  fill(0, 250, 250);
   noStroke();
   rect(hp.x, hp.y, hp.w, hp.h, 6);
-  drawingContext.shadowBlur = 0; // reset so glow doesn't bleed onto other things
+  drawingContext.shadowBlur = 0;
 }
 
 // ------------------------------------------------------------
