@@ -20,9 +20,9 @@ The console will show any errors in your sketch.
 
 | File | Source |
 |------|--------|
-| `assets/images/Sushi1.png` | From Adobe Stock|
-| `assets/images/Onigiri1.png` | From Adobe Stock|
-| `assets/images/background.png` | From Adobe Stock|
+| `assets/images/Sushi1.png` [2]| From Adobe Stock|
+| `assets/images/Onigiri1.png` [2]| From Adobe Stock|
+| `assets/images/background.png` [1]| From Adobe Stock|
 
 ## References
 
