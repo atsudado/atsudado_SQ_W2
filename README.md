@@ -21,13 +21,7 @@ The console will show any errors in your sketch.
 | File | Source |
 |------|--------|
 | `assets/images/Sushi1.png` | From Adobe Stock|
-
-| File | Source |
-|------|--------|
 | `assets/images/Onigiri1.png` | From Adobe Stock|
-
-| File | Source |
-|------|--------|
 | `assets/images/background.png` | From Adobe Stock|
 
 ## References
